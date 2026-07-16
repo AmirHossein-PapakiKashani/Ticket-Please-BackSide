@@ -1,0 +1,5533 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Ticketing System API",
+    "version": "2.0.0",
+    "description": "Full API contract for the Nice Mind ticketing system — based on TICKETING-SYSTEM-DESIGN-v6.md and TICKETING-SYSTEM-API-SCENARIOS-v2.md. Backend: ASP.NET Core (.NET 10). Authentication: JWT Bearer.",
+    "contact": {
+      "name": "Nice Mind Backend Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.ticketing.example.com/api/v1",
+      "description": "Production (example)"
+    },
+    {
+      "url": "https://staging-api.ticketing.example.com/api/v1",
+      "description": "Staging (example)"
+    },
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Local Development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Sign in, sign out, password recovery"
+    },
+    {
+      "name": "Profile",
+      "description": "Current user profile"
+    },
+    {
+      "name": "Layout",
+      "description": "Lightweight info for header/main layout"
+    },
+    {
+      "name": "Notifications",
+      "description": "User notifications"
+    },
+    {
+      "name": "SuperAdmin",
+      "description": "Platform-wide administration area"
+    },
+    {
+      "name": "ProviderManager",
+      "description": "Provider Manager area"
+    },
+    {
+      "name": "Agent",
+      "description": "Agent (support) area"
+    },
+    {
+      "name": "ClientManager",
+      "description": "Client Manager area (read-only oversight)"
+    },
+    {
+      "name": "Requester",
+      "description": "Client employee area / ticket creator"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Header: Authorization: Bearer {accessToken}"
+      }
+    },
+    "schemas": {
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "https://tools.ietf.org/html/rfc9110#section-15.5.4"
+          },
+          "title": {
+            "type": "string",
+            "example": "Forbidden"
+          },
+          "status": {
+            "type": "integer",
+            "example": 403
+          },
+          "detail": {
+            "type": "string",
+            "example": "You do not have permission to access this resource."
+          },
+          "instance": {
+            "type": "string",
+            "example": "/api/v1/agent/tickets/55"
+          },
+          "traceId": {
+            "type": "string",
+            "example": "00-4bf92f3577b34da6a3ce929d0e0e4736-00"
+          }
+        }
+      },
+      "ValidationProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "https://tools.ietf.org/html/rfc9110#section-15.5.1"
+          },
+          "title": {
+            "type": "string",
+            "example": "One or more validation errors occurred."
+          },
+          "status": {
+            "type": "integer",
+            "example": 400
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "username": [
+                "Username is required."
+              ]
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "example": "00-4bf92f3577b34da6a3ce929d0e0e4736-00"
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "CreatedProviderResponse": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "integer",
+            "example": 35
+          }
+        },
+        "required": [
+          "providerId"
+        ]
+      },
+      "CreatedPlanResponse": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "integer",
+            "example": 6
+          }
+        },
+        "required": [
+          "planId"
+        ]
+      },
+      "CreatedSubscriptionResponse": {
+        "type": "object",
+        "properties": {
+          "subscriptionId": {
+            "type": "integer",
+            "example": 88
+          },
+          "expireDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2027-07-07T00:00:00Z"
+          }
+        },
+        "required": [
+          "subscriptionId",
+          "expireDate"
+        ]
+      },
+      "CreatedUserResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "example": 22
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "CreatedClientResponse": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "integer",
+            "example": 8
+          }
+        },
+        "required": [
+          "clientId"
+        ]
+      },
+      "CreatedTicketResponse": {
+        "type": "object",
+        "properties": {
+          "ticketId": {
+            "type": "integer",
+            "example": 56
+          }
+        },
+        "required": [
+          "ticketId"
+        ]
+      },
+      "CreatedMessageResponse": {
+        "type": "object",
+        "properties": {
+          "messageId": {
+            "type": "integer",
+            "example": 301
+          }
+        },
+        "required": [
+          "messageId"
+        ]
+      },
+      "CreatedNoteResponse": {
+        "type": "object",
+        "properties": {
+          "noteId": {
+            "type": "integer",
+            "example": 12
+          }
+        },
+        "required": [
+          "noteId"
+        ]
+      },
+      "UnreadCountResponse": {
+        "type": "object",
+        "properties": {
+          "unreadCount": {
+            "type": "integer",
+            "example": 4
+          }
+        },
+        "required": [
+          "unreadCount"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "ali.m"
+          },
+          "password": {
+            "type": "string",
+            "example": "P@ssw0rd"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "refreshToken": {
+            "type": "string",
+            "example": "8f14e45f-ceea-4c95-8f0f-9c1a4a3f2b1e"
+          },
+          "userId": {
+            "type": "integer",
+            "example": 12
+          },
+          "roleName": {
+            "type": "string",
+            "enum": [
+              "SuperAdmin",
+              "ProviderManager",
+              "Agent",
+              "ClientManager",
+              "Requester"
+            ],
+            "example": "Agent"
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Ali Mohammadi"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "userId",
+          "roleName",
+          "fullName"
+        ]
+      },
+      "RefreshTokenRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "example": "8f14e45f-..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "TokenResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "refreshToken": {
+            "type": "string",
+            "example": "3c2d1a4e-5f6b-4a1c-9e8d-7f6a5b4c3d2e"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken"
+        ]
+      },
+      "LogoutRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "example": "8f14e45f-..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "ali.m"
+          }
+        },
+        "required": [
+          "username"
+        ]
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "b6b1b1c2-...-token"
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "N3wP@ss"
+          }
+        },
+        "required": [
+          "token",
+          "newPassword"
+        ]
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Ali Mohammadi"
+          },
+          "username": {
+            "type": "string",
+            "example": "ali.m"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "09121234567"
+          },
+          "roleName": {
+            "type": "string",
+            "example": "Agent"
+          },
+          "orgName": {
+            "type": "string",
+            "example": "Nice Mind Tech Co."
+          }
+        }
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Ali Mohammadi"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "09121234567"
+          }
+        },
+        "required": [
+          "fullName",
+          "phoneNumber"
+        ]
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "example": "OldP@ss1"
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "NewP@ss2"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "SubscriptionInfo": {
+        "type": "object",
+        "properties": {
+          "planName": {
+            "type": "string",
+            "example": "Gold Plan"
+          },
+          "expireDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-12-01T00:00:00Z"
+          },
+          "remainingDays": {
+            "type": "integer",
+            "example": 147
+          }
+        }
+      },
+      "ProfileSummary": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Ali Mohammadi"
+          },
+          "roleName": {
+            "type": "string",
+            "example": "Agent"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "NotificationItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 501
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "NewTicketAssigned",
+              "NewMessage",
+              "TicketReassigned",
+              "TicketResolved",
+              "TicketClosed",
+              "TicketReopened"
+            ],
+            "example": "NewMessage"
+          },
+          "title": {
+            "type": "string",
+            "example": "New message in ticket #55"
+          },
+          "body": {
+            "type": "string",
+            "example": "Ali Mohammadi: Has the issue been resolved?"
+          },
+          "refId": {
+            "type": "integer",
+            "example": 55
+          },
+          "isRead": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-07T09:12:00Z"
+          }
+        }
+      },
+      "PlatformStats": {
+        "type": "object",
+        "properties": {
+          "totalProviders": {
+            "type": "integer",
+            "example": 34
+          },
+          "activeProviders": {
+            "type": "integer",
+            "example": 30
+          },
+          "totalClients": {
+            "type": "integer",
+            "example": 210
+          },
+          "totalTicketsThisMonth": {
+            "type": "integer",
+            "example": 1523
+          },
+          "revenueThisMonth": {
+            "type": "number",
+            "example": 458000000
+          }
+        }
+      },
+      "ProviderListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Nice Mind Tech Co."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "info@nicemind.ir"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "planName": {
+            "type": "string",
+            "example": "Gold Plan"
+          },
+          "clientCount": {
+            "type": "integer",
+            "example": 12
+          }
+        }
+      },
+      "CreateProviderRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Nice Mind Tech Co."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "info@nicemind.ir"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "02112345678"
+          },
+          "managerUsername": {
+            "type": "string",
+            "example": "manager1"
+          },
+          "managerFullName": {
+            "type": "string",
+            "example": "Mohammad Rezaei"
+          },
+          "managerPassword": {
+            "type": "string",
+            "example": "P@ssw0rd"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "phoneNumber",
+          "managerUsername",
+          "managerFullName",
+          "managerPassword"
+        ]
+      },
+      "ProviderDetail": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Nice Mind Tech Co."
+          },
+          "email": {
+            "type": "string",
+            "example": "info@nicemind.ir"
+          },
+          "phone": {
+            "type": "string",
+            "example": "02112345678"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "subscription": {
+            "type": "object",
+            "properties": {
+              "planName": {
+                "type": "string",
+                "example": "Gold Plan"
+              },
+              "expireDate": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2026-12-01T00:00:00Z"
+              }
+            }
+          },
+          "clientCount": {
+            "type": "integer",
+            "example": 12
+          },
+          "agentCount": {
+            "type": "integer",
+            "example": 5
+          }
+        }
+      },
+      "UpdateProviderRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Nice Mind Tech Co."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "info@nicemind.ir"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "02112345678"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "phoneNumber",
+          "isActive"
+        ]
+      },
+      "PlanListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 3
+          },
+          "name": {
+            "type": "string",
+            "example": "Gold Plan"
+          },
+          "price": {
+            "type": "number",
+            "example": 12000000
+          },
+          "durationDays": {
+            "type": "integer",
+            "example": 365
+          },
+          "maxClientCount": {
+            "type": "integer",
+            "example": 50
+          },
+          "maxAgentCount": {
+            "type": "integer",
+            "example": 20
+          }
+        }
+      },
+      "CreatePlanRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Gold Plan"
+          },
+          "durationDays": {
+            "type": "integer",
+            "example": 365
+          },
+          "price": {
+            "type": "number",
+            "example": 12000000
+          },
+          "maxClientCount": {
+            "type": "integer",
+            "example": 50
+          },
+          "maxAgentCount": {
+            "type": "integer",
+            "example": 20
+          },
+          "modulesJson": {
+            "type": "string",
+            "example": "{\"chat\":true,\"attachments\":true}"
+          }
+        },
+        "required": [
+          "name",
+          "durationDays",
+          "price",
+          "maxClientCount",
+          "maxAgentCount"
+        ]
+      },
+      "UpdatePlanRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Gold Plan"
+          },
+          "durationDays": {
+            "type": "integer",
+            "example": 365
+          },
+          "price": {
+            "type": "number",
+            "example": 12000000
+          },
+          "maxClientCount": {
+            "type": "integer",
+            "example": 50
+          },
+          "maxAgentCount": {
+            "type": "integer",
+            "example": 20
+          },
+          "modulesJson": {
+            "type": "string",
+            "example": "{\"chat\":true,\"attachments\":true}"
+          }
+        },
+        "required": [
+          "name",
+          "durationDays",
+          "price",
+          "maxClientCount",
+          "maxAgentCount"
+        ]
+      },
+      "SubscriptionListItem": {
+        "type": "object",
+        "properties": {
+          "planName": {
+            "type": "string",
+            "example": "Gold Plan"
+          },
+          "purchaseDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-01T00:00:00Z"
+          },
+          "expireDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-12-01T00:00:00Z"
+          },
+          "moneyPaid": {
+            "type": "number",
+            "example": 12000000
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "CreateSubscriptionRequest": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "integer",
+            "example": 3
+          },
+          "moneyPaid": {
+            "type": "number",
+            "example": 12000000
+          }
+        },
+        "required": [
+          "planId",
+          "moneyPaid"
+        ]
+      },
+      "ProviderDashboardStats": {
+        "type": "object",
+        "properties": {
+          "totalClients": {
+            "type": "integer",
+            "example": 12
+          },
+          "totalAgents": {
+            "type": "integer",
+            "example": 5
+          },
+          "openTicketsTotal": {
+            "type": "integer",
+            "example": 34
+          },
+          "closedTicketsTotal": {
+            "type": "integer",
+            "example": 210
+          },
+          "unassignedTicketsCount": {
+            "type": "integer",
+            "example": 2
+          }
+        }
+      },
+      "AgentListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 21
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Reza Karimi"
+          },
+          "username": {
+            "type": "string",
+            "example": "reza.k"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "openTicketsCount": {
+            "type": "integer",
+            "example": 3
+          },
+          "closedTicketsCount": {
+            "type": "integer",
+            "example": 40
+          }
+        }
+      },
+      "CreateAgentRequest": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Reza Karimi"
+          },
+          "username": {
+            "type": "string",
+            "example": "reza.k"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "09123334444"
+          },
+          "password": {
+            "type": "string",
+            "example": "P@ssw0rd"
+          }
+        },
+        "required": [
+          "fullName",
+          "username",
+          "phoneNumber",
+          "password"
+        ]
+      },
+      "UpdateAgentRequest": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Reza Karimi"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "09123334444"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "fullName",
+          "phoneNumber",
+          "isActive"
+        ]
+      },
+      "AgentTicketStats": {
+        "type": "object",
+        "properties": {
+          "openCount": {
+            "type": "integer",
+            "example": 3
+          },
+          "closedCount": {
+            "type": "integer",
+            "example": 40
+          },
+          "avgResponseTime": {
+            "type": "string",
+            "example": "02:15:00"
+          }
+        }
+      },
+      "AgentDetail": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Reza Karimi"
+          },
+          "username": {
+            "type": "string",
+            "example": "reza.k"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "09123334444"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "stats": {
+            "$ref": "#/components/schemas/AgentTicketStats"
+          }
+        }
+      },
+      "ClientListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 7
+          },
+          "name": {
+            "type": "string",
+            "example": "Alpha Corp."
+          },
+          "email": {
+            "type": "string",
+            "example": "info@alpha.com"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "openTicketsCount": {
+            "type": "integer",
+            "example": 4
+          }
+        }
+      },
+      "CreateClientRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Alpha Corp."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "info@alpha.com"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "02177889900"
+          },
+          "managerUsername": {
+            "type": "string",
+            "example": "alpha.manager"
+          },
+          "managerFullName": {
+            "type": "string",
+            "example": "Negar Hosseini"
+          },
+          "managerPassword": {
+            "type": "string",
+            "example": "P@ssw0rd"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "phoneNumber",
+          "managerUsername",
+          "managerFullName",
+          "managerPassword"
+        ]
+      },
+      "UpdateClientRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Alpha Corp."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "info@alpha.com"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "02177889900"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "phoneNumber",
+          "isActive"
+        ]
+      },
+      "ClientDetail": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Alpha Corp."
+          },
+          "email": {
+            "type": "string",
+            "example": "info@alpha.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "02177889900"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "requesterCount": {
+            "type": "integer",
+            "example": 8
+          },
+          "ticketStats": {
+            "type": "object",
+            "properties": {
+              "open": {
+                "type": "integer",
+                "example": 4
+              },
+              "closed": {
+                "type": "integer",
+                "example": 30
+              }
+            }
+          }
+        }
+      },
+      "ClientDashboardStats": {
+        "type": "object",
+        "properties": {
+          "totalRequesters": {
+            "type": "integer",
+            "example": 8
+          },
+          "openTicketsTotal": {
+            "type": "integer",
+            "example": 4
+          },
+          "closedTicketsTotal": {
+            "type": "integer",
+            "example": 30
+          }
+        }
+      },
+      "RequesterListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 40
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Sara Ahmadi"
+          },
+          "username": {
+            "type": "string",
+            "example": "sara.a"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "ticketsCreatedCount": {
+            "type": "integer",
+            "example": 6
+          }
+        }
+      },
+      "CreateRequesterRequest": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Sara Ahmadi"
+          },
+          "username": {
+            "type": "string",
+            "example": "sara.a"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "09131112222"
+          },
+          "password": {
+            "type": "string",
+            "example": "P@ssw0rd"
+          }
+        },
+        "required": [
+          "fullName",
+          "username",
+          "phoneNumber",
+          "password"
+        ]
+      },
+      "UpdateRequesterRequest": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Sara Ahmadi"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "09131112222"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "fullName",
+          "phoneNumber",
+          "isActive"
+        ]
+      },
+      "RequesterDetail": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Sara Ahmadi"
+          },
+          "username": {
+            "type": "string",
+            "example": "sara.a"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "09131112222"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "ticketStats": {
+            "type": "object",
+            "properties": {
+              "open": {
+                "type": "integer",
+                "example": 2
+              },
+              "closed": {
+                "type": "integer",
+                "example": 4
+              }
+            }
+          }
+        }
+      },
+      "AgentTicketListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 55
+          },
+          "topic": {
+            "type": "string",
+            "example": "Error signing in to the panel"
+          },
+          "clientName": {
+            "type": "string",
+            "example": "Alpha Corp."
+          },
+          "requesterName": {
+            "type": "string",
+            "example": "Sara Ahmadi"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Open",
+              "InProgress",
+              "PendingRequesterResponse",
+              "Resolved",
+              "Closed"
+            ],
+            "example": "InProgress"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "example": "High"
+          },
+          "openDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-05T08:00:00Z"
+          },
+          "isSeen": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "ClientTicketListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 55
+          },
+          "topic": {
+            "type": "string",
+            "example": "Error signing in to the panel"
+          },
+          "requesterName": {
+            "type": "string",
+            "example": "Sara Ahmadi"
+          },
+          "assignedAgentName": {
+            "type": "string",
+            "example": "Reza Karimi"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Open",
+              "InProgress",
+              "PendingRequesterResponse",
+              "Resolved",
+              "Closed"
+            ],
+            "example": "InProgress"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "example": "High"
+          }
+        }
+      },
+      "RequesterTicketListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 56
+          },
+          "topic": {
+            "type": "string",
+            "example": "Error signing in to the panel"
+          },
+          "requesterName": {
+            "type": "string",
+            "example": "Sara Ahmadi"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Open",
+              "InProgress",
+              "PendingRequesterResponse",
+              "Resolved",
+              "Closed"
+            ],
+            "example": "Open"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "example": "Medium"
+          },
+          "openDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-07T09:00:00Z"
+          }
+        }
+      },
+      "TicketDetail": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "example": "Error signing in to the panel"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Open",
+              "InProgress",
+              "PendingRequesterResponse",
+              "Resolved",
+              "Closed"
+            ],
+            "example": "InProgress"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "example": "High"
+          },
+          "clientName": {
+            "type": "string",
+            "example": "Alpha Corp."
+          },
+          "requesterName": {
+            "type": "string",
+            "example": "Sara Ahmadi"
+          },
+          "assignedAgentName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Reza Karimi"
+          }
+        }
+      },
+      "Attachment": {
+        "type": "object",
+        "properties": {
+          "fileUrl": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://cdn.example.com/a.png"
+          },
+          "fileName": {
+            "type": "string",
+            "example": "screenshot.png"
+          },
+          "fileType": {
+            "type": "string",
+            "example": "image/png"
+          },
+          "fileSizeKB": {
+            "type": "integer",
+            "example": 220
+          }
+        }
+      },
+      "TicketMessage": {
+        "type": "object",
+        "properties": {
+          "senderId": {
+            "type": "integer",
+            "example": 40
+          },
+          "senderName": {
+            "type": "string",
+            "example": "Sara Ahmadi"
+          },
+          "text": {
+            "type": "string",
+            "example": "Panel won't load"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-05T08:00:00Z"
+          },
+          "seenAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-07-05T08:10:00Z"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            }
+          }
+        }
+      },
+      "SendMessageRequest": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "example": "Panel won't load"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "description": "Attachment files (optional, multiple)"
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "CreateTicketRequest": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "example": "Error signing in to the panel"
+          },
+          "text": {
+            "type": "string",
+            "example": "Panel won't load"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "example": "Medium"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "description": "Attachment files (optional, multiple)"
+          }
+        },
+        "required": [
+          "topic",
+          "text"
+        ]
+      },
+      "TicketNote": {
+        "type": "object",
+        "properties": {
+          "authorName": {
+            "type": "string",
+            "example": "Reza Karimi"
+          },
+          "text": {
+            "type": "string",
+            "example": "Waiting for a response from the technical team"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-06T10:00:00Z"
+          }
+        }
+      },
+      "AddNoteRequest": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "example": "Waiting for a response from the technical team"
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "ActiveAgentForReassign": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 30
+          },
+          "fullName": {
+            "type": "string",
+            "example": "Sara Rostami"
+          },
+          "openTicketsCount": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "ReassignTicketRequest": {
+        "type": "object",
+        "properties": {
+          "newAgentId": {
+            "type": "integer",
+            "example": 30
+          }
+        },
+        "required": [
+          "newAgentId"
+        ]
+      },
+      "UpdateTicketStatusRequest": {
+        "type": "object",
+        "properties": {
+          "newStatus": {
+            "type": "string",
+            "enum": [
+              "Open",
+              "InProgress",
+              "PendingRequesterResponse",
+              "Resolved",
+              "Closed"
+            ],
+            "example": "Resolved"
+          }
+        },
+        "required": [
+          "newStatus"
+        ]
+      },
+      "UpdateTicketPriorityRequest": {
+        "type": "object",
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "example": "High"
+          }
+        },
+        "required": [
+          "priority"
+        ]
+      },
+      "PagedResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {}
+          },
+          "pageNumber": {
+            "type": "integer",
+            "example": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "example": 20
+          },
+          "totalCount": {
+            "type": "integer",
+            "example": 137
+          },
+          "totalPages": {
+            "type": "integer",
+            "example": 7
+          }
+        },
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ]
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid input (validation failed)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ValidationProblemDetails"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Missing, invalid, or expired token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Insufficient role/ownership for this operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Record not found or belongs to another Tenant",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Unique constraint conflict or invalid state for this operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Sign in (Login)",
+        "operationId": "authLogin",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
+        "x-roles": [
+          "Public"
+        ],
+        "description": "Sign in (Login)",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sign in successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Incorrect username/password or inactive account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh-token": {
+      "post": {
+        "summary": "Refresh access token",
+        "operationId": "authRefreshToken",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
+        "x-roles": [
+          "Public"
+        ],
+        "description": "Refresh access token",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "New token issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid/expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Sign out",
+        "operationId": "authLogout",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin",
+          "ProviderManager",
+          "Agent",
+          "ClientManager",
+          "Requester"
+        ],
+        "description": "Sign out",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful logout (idempotent)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing token"
+          }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "summary": "Request password recovery",
+        "operationId": "authForgotPassword",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
+        "x-roles": [
+          "Public"
+        ],
+        "description": "Request password recovery",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generic success response (whether or not the user exists)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "summary": "Set a new password using a recovery token",
+        "operationId": "authResetPassword",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
+        "x-roles": [
+          "Public"
+        ],
+        "description": "Set a new password using a recovery token",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid/expired/used token or password too short",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profile": {
+      "get": {
+        "summary": "Get current user profile",
+        "operationId": "profileGet",
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin",
+          "ProviderManager",
+          "Agent",
+          "ClientManager",
+          "Requester"
+        ],
+        "description": "Get current user profile",
+        "responses": {
+          "200": {
+            "description": "User profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid token"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update profile",
+        "operationId": "profileUpdate",
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin",
+          "ProviderManager",
+          "Agent",
+          "ClientManager",
+          "Requester"
+        ],
+        "description": "Update profile",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profile/change-password": {
+      "put": {
+        "summary": "Change password",
+        "operationId": "profileChangePassword",
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin",
+          "ProviderManager",
+          "Agent",
+          "ClientManager",
+          "Requester"
+        ],
+        "description": "Change password",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Change successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "New password too short",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Current password incorrect",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profile/subscription": {
+      "get": {
+        "summary": "Get subscription details (ProviderManager only)",
+        "operationId": "profileSubscription",
+        "tags": [
+          "Profile"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "Get subscription details (ProviderManager only)",
+        "responses": {
+          "200": {
+            "description": "Subscription details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionInfo"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No active subscription found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/layout/profile-summary": {
+      "get": {
+        "summary": "Profile summary for header",
+        "operationId": "layoutProfileSummary",
+        "tags": [
+          "Layout"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin",
+          "ProviderManager",
+          "Agent",
+          "ClientManager",
+          "Requester"
+        ],
+        "description": "Profile summary for header",
+        "responses": {
+          "200": {
+            "description": "Profile summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid token"
+          }
+        }
+      }
+    },
+    "/layout/notifications/unread-count": {
+      "get": {
+        "summary": "Unread notification count",
+        "operationId": "layoutUnreadCount",
+        "tags": [
+          "Layout"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin",
+          "ProviderManager",
+          "Agent",
+          "ClientManager",
+          "Requester"
+        ],
+        "description": "Unread notification count",
+        "responses": {
+          "200": {
+            "description": "Count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadCountResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid token"
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "summary": "List notifications",
+        "operationId": "notificationsList",
+        "tags": [
+          "Notifications"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin",
+          "ProviderManager",
+          "Agent",
+          "ClientManager",
+          "Requester"
+        ],
+        "description": "List notifications",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text search (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "onlyUnread",
+            "in": "query",
+            "required": false,
+            "description": "Unread only",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/NotificationItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid pagination parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/{notificationId}/read": {
+      "patch": {
+        "summary": "Mark a notification as read",
+        "operationId": "notificationMarkRead",
+        "tags": [
+          "Notifications"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin",
+          "ProviderManager",
+          "Agent",
+          "ClientManager",
+          "Requester"
+        ],
+        "description": "Mark a notification as read",
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true,
+            "description": "Notification ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found or belongs to another user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/read-all": {
+      "patch": {
+        "summary": "Mark all notifications as read",
+        "operationId": "notificationMarkAllRead",
+        "tags": [
+          "Notifications"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin",
+          "ProviderManager",
+          "Agent",
+          "ClientManager",
+          "Requester"
+        ],
+        "description": "Mark all notifications as read",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/dashboard/stats": {
+      "get": {
+        "summary": "Platform-wide statistics",
+        "operationId": "adminDashboardStats",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "Platform-wide statistics",
+        "responses": {
+          "200": {
+            "description": "Statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformStats"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/providers": {
+      "get": {
+        "summary": "List Providers",
+        "operationId": "adminProvidersList",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "List Providers",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text search (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ProviderListItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new Provider",
+        "operationId": "adminProvidersCreate",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "Create new Provider",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProviderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedProviderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate managerUsername",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/providers/{providerId}/deactivate": {
+      "patch": {
+        "summary": "Deactivate Provider",
+        "operationId": "adminProviderDeactivate",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "Deactivate Provider",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/providers/{providerId}": {
+      "get": {
+        "summary": "Provider details",
+        "operationId": "adminProviderGet",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "Provider details",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Provider",
+        "operationId": "adminProviderUpdate",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "Update Provider",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProviderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/plans": {
+      "get": {
+        "summary": "List plans",
+        "operationId": "adminPlansList",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "List plans",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text search (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PlanListItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new plan",
+        "operationId": "adminPlansCreate",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "Create new plan",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePlanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedPlanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/plans/{planId}": {
+      "put": {
+        "summary": "Update plan",
+        "operationId": "adminPlanUpdate",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "Update plan",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/plans/{planId}/deactivate": {
+      "patch": {
+        "summary": "Deactivate plan",
+        "operationId": "adminPlanDeactivate",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "Deactivate plan",
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/providers/{providerId}/subscriptions": {
+      "get": {
+        "summary": "List subscriptions for a Provider",
+        "operationId": "adminSubscriptionsList",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "List subscriptions for a Provider",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubscriptionListItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Provider not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create/renew subscription",
+        "operationId": "adminSubscriptionsCreate",
+        "tags": [
+          "SuperAdmin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "SuperAdmin"
+        ],
+        "description": "Create/renew subscription",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubscriptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedSubscriptionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid moneyPaid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Provider/Plan not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pm/dashboard/stats": {
+      "get": {
+        "summary": "ProviderManager dashboard stats",
+        "operationId": "pmDashboardStats",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "ProviderManager dashboard stats",
+        "responses": {
+          "200": {
+            "description": "Statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDashboardStats"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pm/agents": {
+      "get": {
+        "summary": "List Agents",
+        "operationId": "pmAgentsList",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "List Agents",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text search (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/AgentListItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new Agent",
+        "operationId": "pmAgentsCreate",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "Create new Agent",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAgentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or MaxAgentCount limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate username",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pm/agents/{userId}/deactivate": {
+      "patch": {
+        "summary": "Deactivate Agent",
+        "operationId": "pmAgentDeactivate",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "Deactivate Agent",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pm/agents/{userId}": {
+      "get": {
+        "summary": "Agent details",
+        "operationId": "pmAgentGet",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "Agent details",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Agent",
+        "operationId": "pmAgentUpdate",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "Update Agent",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAgentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pm/agents/{userId}/stats": {
+      "get": {
+        "summary": "Agent ticket stats",
+        "operationId": "pmAgentStats",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "Agent ticket stats",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentTicketStats"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pm/clients": {
+      "get": {
+        "summary": "List Clients",
+        "operationId": "pmClientsList",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "List Clients",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text search (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ClientListItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new Client",
+        "operationId": "pmClientsCreate",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "Create new Client",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClientRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedClientResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or MaxClientCount limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate managerUsername",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pm/clients/{clientId}/deactivate": {
+      "patch": {
+        "summary": "Deactivate Client",
+        "operationId": "pmClientDeactivate",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "Deactivate Client",
+        "parameters": [
+          {
+            "name": "clientId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pm/clients/{clientId}": {
+      "get": {
+        "summary": "Client details",
+        "operationId": "pmClientGet",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "Client details",
+        "parameters": [
+          {
+            "name": "clientId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Client",
+        "operationId": "pmClientUpdate",
+        "tags": [
+          "ProviderManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ProviderManager"
+        ],
+        "description": "Update Client",
+        "parameters": [
+          {
+            "name": "clientId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClientRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/tickets": {
+      "get": {
+        "summary": "List Provider tickets (Agent view)",
+        "operationId": "agentTicketsList",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "List Provider tickets (Agent view)",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text search (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Open",
+                "InProgress",
+                "PendingRequesterResponse",
+                "Resolved",
+                "Closed"
+              ]
+            }
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "required": false,
+            "description": "",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Low",
+                "Medium",
+                "High"
+              ]
+            }
+          },
+          {
+            "name": "assignedToMe",
+            "in": "query",
+            "required": false,
+            "description": "",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/AgentTicketListItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "status/priority not in Enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/tickets/{ticketId}": {
+      "get": {
+        "summary": "Ticket details",
+        "operationId": "agentTicketGet",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "Ticket details",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/tickets/{ticketId}/messages": {
+      "get": {
+        "summary": "Ticket message history",
+        "operationId": "agentTicketMessagesList",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "Ticket message history",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/TicketMessage"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Send a message in ticket chat (only the currently assigned Agent)",
+        "operationId": "agentTicketMessageSend",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "Send a message in ticket chat (only the currently assigned Agent)",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body (multipart for file attachments)",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedMessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty text/attachment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Another Agent is not assigned to this ticket",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ticket not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/tickets/{ticketId}/seen": {
+      "patch": {
+        "summary": "Mark ticket as seen",
+        "operationId": "agentTicketMarkSeen",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "Mark ticket as seen",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/tickets/{ticketId}/reassign": {
+      "patch": {
+        "summary": "Reassign ticket to another Agent",
+        "operationId": "agentTicketReassign",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "Reassign ticket to another Agent",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReassignTicketRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid newAgentId",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Ticket is not assigned to this Agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "newAgentId or ticket not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/tickets/{ticketId}/status": {
+      "patch": {
+        "summary": "Change ticket status",
+        "operationId": "agentTicketUpdateStatus",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "Change ticket status",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTicketStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "newStatus not in Enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Agent is not assigned to this ticket",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/tickets/{ticketId}/priority": {
+      "patch": {
+        "summary": "Change ticket priority",
+        "operationId": "agentTicketUpdatePriority",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "Change ticket priority",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTicketPriorityRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "priority not in Enum",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/tickets/{ticketId}/notes": {
+      "get": {
+        "summary": "List ticket internal notes",
+        "operationId": "agentTicketNotesList",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "List ticket internal notes",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TicketNote"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add internal note",
+        "operationId": "agentTicketNoteAdd",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "Add internal note",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddNoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedNoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty text",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/active-agents": {
+      "get": {
+        "summary": "List active Agents for reassignment",
+        "operationId": "agentActiveAgentsList",
+        "tags": [
+          "Agent"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Agent"
+        ],
+        "description": "List active Agents for reassignment",
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActiveAgentForReassign"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cm/dashboard/stats": {
+      "get": {
+        "summary": "ClientManager dashboard stats",
+        "operationId": "cmDashboardStats",
+        "tags": [
+          "ClientManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ClientManager"
+        ],
+        "description": "ClientManager dashboard stats",
+        "responses": {
+          "200": {
+            "description": "Statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDashboardStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cm/requesters": {
+      "get": {
+        "summary": "List Requesters",
+        "operationId": "cmRequestersList",
+        "tags": [
+          "ClientManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ClientManager"
+        ],
+        "description": "List Requesters",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text search (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/RequesterListItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new Requester",
+        "operationId": "cmRequestersCreate",
+        "tags": [
+          "ClientManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ClientManager"
+        ],
+        "description": "Create new Requester",
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRequesterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate username",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cm/requesters/{userId}/deactivate": {
+      "patch": {
+        "summary": "Deactivate Requester",
+        "operationId": "cmRequesterDeactivate",
+        "tags": [
+          "ClientManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ClientManager"
+        ],
+        "description": "Deactivate Requester",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cm/requesters/{userId}": {
+      "get": {
+        "summary": "Requester details",
+        "operationId": "cmRequesterGet",
+        "tags": [
+          "ClientManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ClientManager"
+        ],
+        "description": "Requester details",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequesterDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Requester",
+        "operationId": "cmRequesterUpdate",
+        "tags": [
+          "ClientManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ClientManager"
+        ],
+        "description": "Update Requester",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRequesterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cm/tickets": {
+      "get": {
+        "summary": "List Client tickets (view only)",
+        "operationId": "cmTicketsList",
+        "tags": [
+          "ClientManager"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "ClientManager"
+        ],
+        "description": "List Client tickets (view only)",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text search (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Open",
+                "InProgress",
+                "PendingRequesterResponse",
+                "Resolved",
+                "Closed"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ClientTicketListItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requester/tickets": {
+      "post": {
+        "summary": "Create a new ticket (automatic assignment is performed)",
+        "operationId": "requesterTicketCreate",
+        "tags": [
+          "Requester"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Requester"
+        ],
+        "description": "Create a new ticket (automatic assignment is performed)",
+        "requestBody": {
+          "description": "Request body (multipart for file attachments)",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTicketRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedTicketResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty topic/text or invalid priority",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Client tickets (including colleagues' tickets)",
+        "operationId": "requesterTicketsList",
+        "tags": [
+          "Requester"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Requester"
+        ],
+        "description": "List Client tickets (including colleagues' tickets)",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text search (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Open",
+                "InProgress",
+                "PendingRequesterResponse",
+                "Resolved",
+                "Closed"
+              ]
+            }
+          },
+          {
+            "name": "createdByMe",
+            "in": "query",
+            "required": false,
+            "description": "",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/RequesterTicketListItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requester/tickets/{ticketId}": {
+      "get": {
+        "summary": "Ticket details",
+        "operationId": "requesterTicketGet",
+        "tags": [
+          "Requester"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Requester"
+        ],
+        "description": "Ticket details",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requester/tickets/{ticketId}/messages": {
+      "get": {
+        "summary": "Ticket message history",
+        "operationId": "requesterTicketMessagesList",
+        "tags": [
+          "Requester"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Requester"
+        ],
+        "description": "Ticket message history",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PagedResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/TicketMessage"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Send a message (original ticket creator only)",
+        "operationId": "requesterTicketMessageSend",
+        "tags": [
+          "Requester"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Requester"
+        ],
+        "description": "Send a message (original ticket creator only)",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body (multipart for file attachments)",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedMessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty text/attachment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sender is not the original creator",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ticket not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requester/tickets/{ticketId}/reopen": {
+      "patch": {
+        "summary": "Reopen a closed ticket (original creator only)",
+        "operationId": "requesterTicketReopen",
+        "tags": [
+          "Requester"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Requester"
+        ],
+        "description": "Reopen a closed ticket (original creator only)",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success — the same Agent remains assigned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sender is not the original creator",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ticket not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Current status is not Resolved/Closed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
