@@ -1,0 +1,15 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+
+## Visual Studio / VS Code
+.vs/
+.idea/
+*.swp
+
+## OS
+Thumbs.db
+Desktop.ini
+.DS_Store
