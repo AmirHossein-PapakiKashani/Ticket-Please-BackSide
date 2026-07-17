@@ -2,7 +2,9 @@
 name: orchestrator
 description: >-
   Route Ticketing API work by phase (B-Prep, 0–6) through investigation, scaffold,
-  and verification. Use at the start of any feature, phase endpoint, or bug fix.
+  verification, or the two-stage full-phase cycle that commits development phases
+  before separately approved Postman verification. Use at the start of any feature,
+  phase endpoint, full phase, repeated phase delivery, or bug fix.
   Invoke with /orchestrator.
 ---
 
@@ -15,10 +17,12 @@ Does not replace `AGENTS.md` or `.cursor/rules/`.
 
 | Signal | Route |
 |--------|-------|
+| Run/start/continue/complete all remaining phases | → **phase-cycle** development loop, then Postman approval gate |
 | Phase work / new endpoint / new Command·Query | → **scenario-contract**, wait approval |
 | Domain: Auto-Assign / Reassign / Reopen | → **scenario-contract** + DESIGN §§6–8; unit tests required |
 | Simple bug in one known handler | → fix (`AGENTS.md` §11) → **verify-feature** |
-| User says `تایید شد` / `approved` | → **feature-scaffold** |
+| User approves a standalone contract | → **feature-scaffold** |
+| User approves Postman after all development commits | → **phase-cycle** Postman stage |
 
 ## Step 1 — Pre-task
 
@@ -39,7 +43,9 @@ codebase-memory MCP first; Shell with `rtk` + `RTK ▸`; no Grep/Glob for `.cs` 
 
 ## Step 3 — Investigation gate
 
-If scenario-contract applies: follow that skill → **STOP** until `approved` / `تایید شد`.
+If `phase-cycle` applies, hand control to that skill. One explicit kickoff approval authorizes all remaining development phases and their scoped commits. After all development commits, stop for the separate real Postman/database approval.
+
+Otherwise, if scenario-contract applies: follow that skill → **STOP** until `approved` / `تایید شد`.
 
 ## Step 4 — Execute
 
@@ -47,9 +53,19 @@ Only endpoints listed for the stated phase. No MVP out-of-scope (SignalR, Ticket
 
 ## Step 5 — Verify
 
-`verify-feature` + FE handoff when phase DoD met.
+Use `verify-feature` in `development` mode before each phase commit. Use it again in `postman` mode only after the separate database approval. A phase is not API Verified until all of its real Postman scenarios pass.
 
 ## Kickoff
+
+Full phase cycle:
+
+```
+/phase-cycle
+Start: [B-Prep | 0-6 | next]
+Mode: all-remaining
+```
+
+Single feature or endpoint:
 
 ```
 /orchestrator

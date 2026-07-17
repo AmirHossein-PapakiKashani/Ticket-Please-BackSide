@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ticket Phase Cycle"
+  short_description: "Commit all phases, then run gated real Postman verification"
+  default_prompt: "Use $phase-cycle to implement and commit all remaining Ticket phases, then wait for approval before real Postman verification."

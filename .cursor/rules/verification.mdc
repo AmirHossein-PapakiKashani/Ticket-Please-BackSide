@@ -5,13 +5,23 @@ alwaysApply: true
 
 # Verification
 
-After code changes, follow **`verify-feature`**:
+After code changes, follow **`verify-feature`** in the correct mode.
+
+Development mode, before each phase commit:
 
 1. `rtk dotnet build src/Ticket/Ticket.slnx`
-2. Smoke-test routes for the **current phase** when a JWT for the right role exists
-3. Scenario Coverage table (SC-id / route / expected / result)
-4. Check Backend Guide **Backend DoD** for that phase before marking Done
-5. Write short **FE handoff** (credentials, sample IDs, blocked items)
-6. Report migration command if schema changed
+2. Focused unit/business tests plus affected regressions
+3. Contract and Backend DoD review
+4. Commit only a clean, phase-scoped staged diff
+5. Mark `Development Complete`, not API Verified
 
-Do not mark Phase N Done while contracted Phase N routes are missing or Swagger ≠ openapi.
+Postman mode, only after the separate database approval:
+
+1. Use the real API and approved test database; mocks do not count as Passed
+2. Execute every documented scenario for the current phase
+3. Keep fixing and re-running until all required scenarios pass
+4. Write Scenario Coverage and FE handoff evidence
+5. Mark `API Verified` only when the phase is fully green
+6. Report the migration command if schema changed; do not generate migrations unless asked
+
+Do not mark the project complete until every phase is both Development Complete and API Verified.

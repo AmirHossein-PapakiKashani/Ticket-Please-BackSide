@@ -57,6 +57,7 @@ Assumptions I am making: [...]
 8. **Out of MVP** — `TicketAssignmentLogs`, general AuditLogs, multi-requester chat write, re-run Auto-Assign on Reopen.
 9. **CancellationToken** on all async I/O; prefer primary constructors.
 10. **Never commit a broken build.**
+11. **Two-stage full cycle** — when the user explicitly approves the all-remaining-phases workflow, implement, business-verify, and commit each phase in order without routine pauses. After all development commits, require separate explicit approval before real Postman/database testing.
 
 ---
 
@@ -315,19 +316,28 @@ Publish answers in handoff notes so FE Phase 0 interceptors work.
 rtk dotnet build src/Ticket/Ticket.slnx
 ```
 
-After API changes: `verify-feature` — happy path + one validation/auth failure + Scenario Coverage table. Write FE handoff note at phase DoD.
+During the full-cycle development stage: use `verify-feature` in development mode (build + business/unit tests + affected regressions) before each phase commit. This earns `Development Complete`, not API Verified.
+
+After all development phases are committed and the user separately approves database access: run real Postman/Newman scenarios phase by phase. Do not advance until every required scenario in the current phase passes. This earns `API Verified`.
 
 ---
 
 ## 14. Orchestrated workflow
 
 ```
-User request
-  → orchestrator (name Phase + Area)
-  → scenario-contract (DESIGN + SCENARIOS + openapi) → wait تایید شد / approved
-  → feature-scaffold
-  → verify-feature (+ FE handoff)
-  → done
+Explicitly approved full cycle
+  → phase-cycle on codex/all-phases
+  → repeat B-Prep/0–6 in order:
+       scenario-contract → implement → business tests/build → scoped phase commit
+  → developmentComplete
+  → STOP and request explicit Postman/test-database approval
+  → repeat phases in order:
+       real Postman scenarios → diagnose/fix/retest until every scenario passes
+  → allPhasesPassed → Project Complete
 ```
+
+The full-cycle kickoff authorizes phase implementation and scoped commits only. It does not authorize database access, Postman execution, migrations, destructive cleanup, push, or PR creation.
+
+Standalone endpoint/feature work keeps the existing `scenario-contract` approval gate.
 
 Skills: `.cursor/skills/`. Quickrefs: `references/`.

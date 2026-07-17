@@ -8,7 +8,7 @@ alwaysApply: true
 Before any endpoint:
 
 1. State **Phase** (B-Prep | 0–6) and **Area** (auth|admin|pm|agent|cm|requester|shared).
-2. Run **scenario-contract** — wait for `تایید شد` / `approved` on new work.
+2. Run **scenario-contract**. Wait for `تایید شد` / `approved` on standalone new work. During an already approved `phase-cycle`, record each phase contract and continue without a routine per-phase pause; still stop for conflicts or scope changes.
 3. Read:
    - Backend Guide section for that phase + DoD
    - Matching SCENARIOS cards

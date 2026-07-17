@@ -2,7 +2,8 @@
 name: scenario-contract
 description: >-
   Validate Ticketing endpoints against DESIGN-v6, API scenarios, openapi, and the
-  current backend/FE phase DoD before coding. Wait for approval.
+  current backend/FE phase DoD before coding. Wait for approval on standalone
+  work; continue without a per-phase pause inside an already approved phase-cycle.
 ---
 
 # Scenario contract — Ticketing System
@@ -55,11 +56,16 @@ Resolve DESIGN vs openapi conflicts before coding (business → DESIGN; HTTP sha
 - [ ] Notes never in Requester message DTOs
 - [ ] ClientManager has no chat/write on tickets
 
-### 5. Report then STOP
+### 5. Report and apply the correct gate
 
 Files/docs read · Blast radius · Tables · Open questions  
-Wait for **`approved`** / **`تایید شد`**.
+
+- Standalone endpoint or phase work: wait for **`approved`** / **`تایید شد`**.
+- Active `phase-cycle` whose full development run was explicitly approved: record the contract report and continue without routine per-phase approval.
+- Any material contract conflict, new out-of-scope behavior, destructive requirement, or missing business decision: stop and request direction even during `phase-cycle`.
 
 ## After code
 
-`verify-feature` — mark rows Covered with HTTP evidence; confirm Backend DoD + FE handoff.
+During the development stage, use `verify-feature` business mode and mark the phase `Development Complete` only after build and business tests pass.
+
+During the later approved Postman stage, mark rows Covered with real HTTP evidence and use `API Verified` only after every documented scenario passes against the approved test database.

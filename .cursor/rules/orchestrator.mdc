@@ -12,5 +12,13 @@ For features, phase work, new endpoints, or non-trivial bugs:
 3. **`feature-scaffold`** or minimal fix
 4. **`verify-feature`** + FE handoff note at phase DoD
 
+For an explicitly approved all-remaining-phases run:
+
+1. Use **`phase-cycle`** on one cumulative `codex/all-phases` branch.
+2. Implement, business-verify, and commit each phase separately without a routine approval pause between successful phases.
+3. After all development phase commits, stop and request one explicit approval for real Postman/database testing.
+4. Test phases sequentially through the real API; never advance while the current phase has a Failed or Blocked required scenario.
+5. Distinguish `Development Complete` from `API Verified`; only all verified phases make the project complete.
+
 Phase matrix and DoD: `AGENTS.md` §3 and Backend Guide.  
 FE mirror: `Documents/TICKETING-SYSTEM-IMPLEMENTATION-PHASES-v1.md`.
