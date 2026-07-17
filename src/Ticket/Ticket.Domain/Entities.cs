@@ -75,7 +75,9 @@ public sealed class User
     public int RoleId { get; set; }
     public Role? Role { get; set; }
     public int? ProviderId { get; set; }
+    public Provider? Provider { get; set; }
     public int? ClientId { get; set; }
+    public Client? Client { get; set; }
     public required string FullName { get; set; }
     public required string Username { get; set; }
     public string PhoneNumber { get; set; } = string.Empty;

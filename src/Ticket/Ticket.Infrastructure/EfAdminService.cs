@@ -41,6 +41,7 @@ public sealed class EfAdminService(IApplicationDbContext db, IPasswordHasher pas
         if (await db.Users.AnyAsync(u => u.Username == request.ManagerUsername.Trim(), cancellationToken))
             throw new ConflictException("This username is already in use");
 
+        var pmRole = await db.Roles.FirstAsync(r => r.Name == RoleNames.ProviderManager, cancellationToken);
         var provider = new Provider
         {
             Name = request.Name.Trim(),
@@ -48,9 +49,6 @@ public sealed class EfAdminService(IApplicationDbContext db, IPasswordHasher pas
             PhoneNumber = request.PhoneNumber.Trim()
         };
         db.Providers.Add(provider);
-        await db.SaveChangesAsync(cancellationToken);
-
-        var pmRole = await db.Roles.FirstAsync(r => r.Name == RoleNames.ProviderManager, cancellationToken);
         db.Users.Add(new User
         {
             Username = request.ManagerUsername.Trim(),
@@ -58,7 +56,7 @@ public sealed class EfAdminService(IApplicationDbContext db, IPasswordHasher pas
             PhoneNumber = request.PhoneNumber.Trim(),
             PassHash = passwordHasher.Hash(request.ManagerPassword),
             RoleId = pmRole.Id,
-            ProviderId = provider.Id
+            Provider = provider
         });
         await db.SaveChangesAsync(cancellationToken);
         return new CreatedProviderResponse(provider.Id);

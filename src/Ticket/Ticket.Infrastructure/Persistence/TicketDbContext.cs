@@ -34,6 +34,8 @@ public sealed class TicketDbContext(DbContextOptions<TicketDbContext> options) :
             e.Property(x => x.PassHash).HasMaxLength(500).IsRequired();
             e.HasIndex(x => x.Username).IsUnique();
             e.HasOne(x => x.Role).WithMany().HasForeignKey(x => x.RoleId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Provider).WithMany().HasForeignKey(x => x.ProviderId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Client).WithMany().HasForeignKey(x => x.ClientId).OnDelete(DeleteBehavior.Restrict);
             e.Ignore(x => x.RoleName);
         });
 
