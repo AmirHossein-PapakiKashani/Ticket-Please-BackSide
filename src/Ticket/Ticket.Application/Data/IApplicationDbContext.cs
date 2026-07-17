@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ticket.Domain;
 using Ticket.Domain.Enums;
+using TicketEntity = Ticket.Domain.Ticket;
 
 namespace Ticket.Application.Data;
 
@@ -16,5 +17,9 @@ public interface IApplicationDbContext
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<PasswordResetToken> PasswordResetTokens { get; }
     DbSet<Notification> Notifications { get; }
+    DbSet<TicketEntity> Tickets { get; }
+    DbSet<TicketMessage> TicketMessages { get; }
+    DbSet<Attachment> Attachments { get; }
+    DbSet<TicketNote> TicketNotes { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
