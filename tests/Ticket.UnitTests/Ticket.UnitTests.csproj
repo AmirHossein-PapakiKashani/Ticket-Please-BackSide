@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Ticket\Ticket.Api\Ticket.Api.csproj" />
     <ProjectReference Include="..\..\src\Ticket\Ticket.Application\Ticket.Application.csproj" />
     <ProjectReference Include="..\..\src\Ticket\Ticket.Infrastructure\Ticket.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Ticket\Ticket.Domain\Ticket.Domain.csproj" />
