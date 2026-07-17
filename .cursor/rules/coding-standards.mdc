@@ -1,0 +1,34 @@
+---
+description: Ticket coding standards from DESIGN-v6 + Backend Implementation Guide
+alwaysApply: true
+---
+
+# Coding standards (Ticketing System)
+
+Master: `AGENTS.md`. Sources: DESIGN-v6, Backend Guide, FE Phases, openapi, scenarios.
+
+## Must
+
+- Clean Architecture (.NET 10): Api / Application / Domain / Infrastructure
+- New work = CQRS slices (Command/Query + Handler + DTO + Errors) + thin controllers
+- Soft delete / `PATCH .../deactivate` — never hard `Remove()`
+- Filter by JWT `ProviderId` / `ClientId`; wrong tenant → **404**; wrong ownership → **403**
+- JSON camelCase; enums as **strings**; persist ticket enums as int per ERD
+- Errors → ProblemDetails / ValidationProblemDetails (`errors` map for 400)
+- Status codes from openapi (201/400/401/403/404/409 allowed)
+- Lists: `search` + 1-based `pageNumber` + `pageSize` 1–100 → `PagedResponse<T>`
+- Controllers by area: Auth, Profile, Layout, Notifications, Admin, ProviderManager (`/pm`), Agent, ClientManager (`/cm`), Requester
+- Auto-Assign only on Create Ticket (DESIGN §6); Reopen keeps same Agent
+- Chat: only creator Requester writes; ClientManager never chats; notes never leak to Requester
+- Phase order B-Prep → 0…6; no later-phase routes; no SignalR / TicketAssignmentLogs in MVP
+
+## Must not
+
+- Invent routes or rename Provider/Client/Agent/Requester
+- Skip scenario-contract for new endpoints
+- Re-run Auto-Assign on Reopen
+- Commit without green build
+
+## Flow
+
+`orchestrator` → `scenario-contract` (`تایید شد`) → `feature-scaffold` → `verify-feature` + FE handoff

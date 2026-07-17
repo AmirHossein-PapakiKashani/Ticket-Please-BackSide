@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      { "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \".cursor/hooks/rtk-cursor-hook.ps1\"", "matcher": "Shell", "failClosed": false },
+      { "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \".cursor/hooks/block-grep-glob.ps1\"", "matcher": "Grep|Glob", "failClosed": false }
+    ],
+    "subagentStart": [
+      { "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \".cursor/hooks/enforce-subagent-policy.ps1\"", "matcher": "explore|generalPurpose|shell", "failClosed": false }
+    ]
+  }
+}

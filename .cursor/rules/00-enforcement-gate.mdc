@@ -1,0 +1,52 @@
+---
+description: HARD GATE — codebase-memory MCP and RTK are mandatory before code exploration or shell
+alwaysApply: true
+---
+
+# Enforcement Gate (ZERO TOLERANCE)
+
+## Gate A — Before ANY code exploration
+
+First tool call for code questions MUST be one of (`user-codebase-memory-mcp`):
+
+1. `detect_changes` — if editing code this turn
+2. `search_graph` / `search_code` — find symbols / text
+3. `get_code_snippet` / `get_architecture` / `trace_path`
+
+**FORBIDDEN as first exploration:** Cursor `Grep`, `Glob`, broad `Read`, explore subagents that Grep `.cs`.
+
+### Allowed exceptions (one-line reason)
+
+- Non-graph files: `.json`, `.md`, `.css`, `.yaml`, `.http`, `.csproj`, `.sln`, `.slnx`
+- User said "use grep"
+- Repo not indexed — tell user and run `index_repository`
+
+## Gate B — Grep / Glob
+
+C# / handlers / endpoints / namespaces → MCP only.  
+If fallback: reply must include `MCP fallback reason: <why>`.
+
+## Gate C — Shell
+
+```
+❌ git status
+✅ rtk git status
+```
+
+Show `RTK ▸ rtk <command>` before each Shell call.
+
+## Gate D — Subagents
+
+Include in every Task prompt:
+
+```
+MANDATORY: codebase-memory MCP (search_graph, search_code, get_code_snippet).
+FORBIDDEN: Grep/Glob for source code.
+Shell: prefix with rtk.
+```
+
+## Self-check
+
+- [ ] MCP first?
+- [ ] Grep/Glob → fallback reason stated?
+- [ ] Shell prefixed with `rtk` + `RTK ▸` shown?

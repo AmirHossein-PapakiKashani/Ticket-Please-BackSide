@@ -1,0 +1,20 @@
+---
+description: Keep Ticketing API aligned to DESIGN, phases, scenarios, and openapi
+alwaysApply: true
+---
+
+# Phase & contract lock
+
+Before any endpoint:
+
+1. State **Phase** (B-Prep | 0–6) and **Area** (auth|admin|pm|agent|cm|requester|shared).
+2. Run **scenario-contract** — wait for `تایید شد` / `approved` on new work.
+3. Read:
+   - Backend Guide section for that phase + DoD
+   - Matching SCENARIOS cards
+   - `Documents/openapi.json`
+   - DESIGN sections for business rules (assign/reassign/reopen/tenancy as needed)
+4. Mirror FE phase numbers (`IMPLEMENTATION-PHASES-v1`). Backend Phase N Swagger-demo before FE Phase N.
+5. Do **not** introduce later-phase routes or MVP out-of-scope items (SignalR, TicketAssignmentLogs, AuditLogs).
+
+Docs-first changes only. Master: `AGENTS.md`.

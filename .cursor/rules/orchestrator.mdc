@@ -1,0 +1,16 @@
+---
+description: Route Ticketing tasks through phase-aware orchestrator skills
+alwaysApply: true
+---
+
+# Orchestrator entry point
+
+For features, phase work, new endpoints, or non-trivial bugs:
+
+1. **`orchestrator`** — name Phase + Area (`/orchestrator`)
+2. New endpoint/phase → **`scenario-contract`** → wait `تایید شد` / `approved`
+3. **`feature-scaffold`** or minimal fix
+4. **`verify-feature`** + FE handoff note at phase DoD
+
+Phase matrix and DoD: `AGENTS.md` §3 and Backend Guide.  
+FE mirror: `Documents/TICKETING-SYSTEM-IMPLEMENTATION-PHASES-v1.md`.

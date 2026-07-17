@@ -1,0 +1,17 @@
+---
+description: Verify Ticketing phases against Backend Guide DoD and FE sync gates
+alwaysApply: true
+---
+
+# Verification
+
+After code changes, follow **`verify-feature`**:
+
+1. `rtk dotnet build src/Ticket/Ticket.slnx`
+2. Smoke-test routes for the **current phase** when a JWT for the right role exists
+3. Scenario Coverage table (SC-id / route / expected / result)
+4. Check Backend Guide **Backend DoD** for that phase before marking Done
+5. Write short **FE handoff** (credentials, sample IDs, blocked items)
+6. Report migration command if schema changed
+
+Do not mark Phase N Done while contracted Phase N routes are missing or Swagger ≠ openapi.

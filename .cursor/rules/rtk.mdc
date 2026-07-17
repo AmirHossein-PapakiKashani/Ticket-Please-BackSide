@@ -1,0 +1,32 @@
+---
+description: Mandatory RTK prefix on all shell commands (Ticket Backend / Windows)
+alwaysApply: true
+---
+
+# RTK — Token-Optimized Shell (Mandatory)
+
+Every shell command MUST be prefixed with `rtk`.
+
+**Visibility:** before each Shell tool call show:
+
+`RTK ▸ rtk <exact command>`
+
+```
+❌ git status
+✅ rtk git status
+
+❌ dotnet build src/Ticket/Ticket.slnx
+✅ rtk dotnet build src/Ticket/Ticket.slnx
+
+❌ cmd1 && cmd2
+✅ rtk cmd1 && rtk cmd2
+```
+
+| Task | Command |
+|------|---------|
+| Build | `rtk dotnet build src/Ticket/Ticket.slnx` |
+| Test | `rtk dotnet test` |
+| Restore | `rtk dotnet restore src/Ticket/Ticket.slnx` |
+| EF (when asked) | `rtk err dotnet ef ...` |
+
+Code exploration → codebase-memory MCP first. Shell Grep only as last resort.

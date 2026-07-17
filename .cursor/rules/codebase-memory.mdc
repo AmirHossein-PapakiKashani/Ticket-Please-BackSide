@@ -1,0 +1,16 @@
+---
+description: Prefer codebase-memory MCP for C# discovery.
+alwaysApply: true
+---
+
+# Codebase-memory (mandatory for .cs)
+
+Server: `user-codebase-memory-mcp`.
+
+1. If repo not indexed → `index_repository` (`d:\Ticket`, mode `full`, persistence `true`)
+2. Before edits → `detect_changes`
+3. Discovery → `search_graph` / `search_code` / `get_architecture` / `get_code_snippet` / `trace_path`
+
+Fall back to Grep/Glob only for non-code files or when the graph is unavailable — then state `MCP fallback reason: ...`.
+
+See also: `00-enforcement-gate.mdc`.
