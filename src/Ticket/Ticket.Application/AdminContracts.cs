@@ -36,3 +36,6 @@ public interface IAdminService
 
 public sealed class NotFoundException(string detail) : Exception(detail);
 public sealed class ConflictException(string detail) : Exception(detail);
+public sealed class UnauthorizedAppException(string detail) : Exception(detail);
+public sealed class ForbiddenAppException(string detail) : Exception(detail);
+public sealed class BadRequestAppException(string detail) : Exception(detail);
