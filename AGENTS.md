@@ -331,3 +331,17 @@ User request
 ```
 
 Skills: `.cursor/skills/`. Quickrefs: `references/`.
+
+---
+
+## Cursor Cloud specific instructions
+
+Durable, non-obvious notes for cloud agents (the VM snapshot already has the SDK installed and `dotnet restore` run on startup).
+
+- **SDK / PATH:** .NET 10 SDK lives at `/usr/share/dotnet` and is symlinked to `/usr/local/bin/dotnet`, so plain `dotnet` works from any directory (no `DOTNET_ROOT` export needed). It is baked into the snapshot; the startup update script only runs `dotnet restore src/Ticket/Ticket.slnx`.
+- **`rtk` is NOT installed in the cloud VM.** The repo rules/`RTK.md` prescribe an `rtk` shell wrapper, but it does not exist here — run `dotnet`/`git` directly. The `user-codebase-memory-mcp` server is also unavailable in this VM; use normal search tools.
+- **Run the API:** from `src/Ticket/Ticket.Api` run `dotnet run --launch-profile http` → serves `http://localhost:5218`. Prefer the `http` profile; the `https` profile triggers a harmless "Failed to determine the https port for redirect" warning and needs a trusted dev cert.
+- **Swagger** is only mapped in `Development` (`ASPNETCORE_ENVIRONMENT=Development`, set by the launch profile) at `http://localhost:5218/swagger`.
+- **Storage is in-memory** (`InMemoryAdminService`), so data resets on every restart — there is no database to provision or migrate.
+- **No auth endpoint yet (Phase 1 only).** All `/api/v1/admin/*` routes require a SuperAdmin JWT, but no `AuthController` exists to mint one. For smoke tests, hand-sign an HS256 token with `Jwt:SigningKey` from `appsettings.json` (`iss=Ticket.Api`, `aud=Ticket.Client`, role claim = `SuperAdmin`). Without a token these routes return 401.
+- **No test project exists yet**, so `dotnet test` finds nothing to run. Lint = `dotnet format src/Ticket/Ticket.slnx --verify-no-changes`; build = `dotnet build src/Ticket/Ticket.slnx`.
