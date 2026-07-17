@@ -61,7 +61,7 @@ public sealed class RequesterBusinessRulesTests
         await using (db)
         {
             var seed = await SeedAsync(db, hasher);
-            var created = await new CreateTicketCommandHandler(db, seed.Requester, new LocalFileStorage())
+            var created = await new CreateTicketCommandHandler(db, seed.Requester, TestDbFactory.Files())
                 .Handle(new CreateTicketCommand("Login broken", "Cannot enter panel", null, null), CancellationToken.None);
 
             var ticket = await db.Tickets.SingleAsync(t => t.Id == created.TicketId);
@@ -107,7 +107,7 @@ public sealed class RequesterBusinessRulesTests
             var created = await new CreateTicketCommandHandler(
                     db,
                     new FakeCurrentUser { UserId = requester.Id, RoleName = RoleNames.Requester, ClientId = client.ClientId },
-                    new LocalFileStorage())
+                    TestDbFactory.Files())
                 .Handle(new CreateTicketCommand("Topic ok", "Body text", TicketPriority.High, null), CancellationToken.None);
 
             var ticket = await db.Tickets.SingleAsync(t => t.Id == created.TicketId);
@@ -124,7 +124,7 @@ public sealed class RequesterBusinessRulesTests
         await using (db)
         {
             var seed = await SeedAsync(db, hasher);
-            var created = await new CreateTicketCommandHandler(db, seed.Requester, new LocalFileStorage())
+            var created = await new CreateTicketCommandHandler(db, seed.Requester, TestDbFactory.Files())
                 .Handle(new CreateTicketCommand("Topic", "First", null, null), CancellationToken.None);
 
             var colleagueRoleId = await db.Roles.Where(r => r.Name == RoleNames.Requester).Select(r => r.Id).FirstAsync();
@@ -144,7 +144,7 @@ public sealed class RequesterBusinessRulesTests
                 new SendRequesterMessageCommandHandler(
                         db,
                         new FakeCurrentUser { UserId = colleague.Id, RoleName = RoleNames.Requester, ClientId = seed.ClientId },
-                        new LocalFileStorage())
+                        TestDbFactory.Files())
                     .Handle(new SendRequesterMessageCommand(created.TicketId, "Hi", null), CancellationToken.None));
         }
     }
@@ -157,7 +157,7 @@ public sealed class RequesterBusinessRulesTests
         await using (db)
         {
             var seed = await SeedAsync(db, hasher);
-            var created = await new CreateTicketCommandHandler(db, seed.Requester, new LocalFileStorage())
+            var created = await new CreateTicketCommandHandler(db, seed.Requester, TestDbFactory.Files())
                 .Handle(new CreateTicketCommand("Topic", "First", null, null), CancellationToken.None);
             var ticket = await db.Tickets.SingleAsync(t => t.Id == created.TicketId);
             ticket.Status = TicketStatus.Resolved;
@@ -185,7 +185,7 @@ public sealed class RequesterBusinessRulesTests
         await using (db)
         {
             var seed = await SeedAsync(db, hasher);
-            var created = await new CreateTicketCommandHandler(db, seed.Requester, new LocalFileStorage())
+            var created = await new CreateTicketCommandHandler(db, seed.Requester, TestDbFactory.Files())
                 .Handle(new CreateTicketCommand("Topic", "First", null, null), CancellationToken.None);
 
             await Assert.ThrowsAsync<ConflictException>(() =>

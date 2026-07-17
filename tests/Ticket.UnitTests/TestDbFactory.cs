@@ -1,5 +1,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Ticket.Application.Abstractions;
 using Ticket.Domain;
 using Ticket.Infrastructure.Persistence;
 using Ticket.Infrastructure.Services;
@@ -8,6 +10,8 @@ namespace Ticket.UnitTests;
 
 internal static class TestDbFactory
 {
+    public static LocalFileStorage Files() => new(Options.Create(new AttachmentOptions()));
+
     public static async Task<(TicketDbContext Db, SqliteConnection Connection, AspNetPasswordHasher Hasher)> CreateAsync()
     {
         var connection = new SqliteConnection("Data Source=:memory:");

@@ -55,7 +55,7 @@ public sealed class AgentBusinessRulesTests
         agentA.LastAssignedAt = null;
         await db.SaveChangesAsync();
 
-        var created = await new CreateTicketCommandHandler(db, requesterUser, new LocalFileStorage())
+        var created = await new CreateTicketCommandHandler(db, requesterUser, TestDbFactory.Files())
             .Handle(new CreateTicketCommand("Topic", "Body", null, null), CancellationToken.None);
 
         return (
@@ -83,7 +83,7 @@ public sealed class AgentBusinessRulesTests
                 n.UserId == seed.AgentB.UserId && n.Type == NotificationType.TicketReassigned));
 
             await Assert.ThrowsAsync<ForbiddenAppException>(() =>
-                new SendAgentMessageCommandHandler(db, seed.AgentA, new LocalFileStorage())
+                new SendAgentMessageCommandHandler(db, seed.AgentA, TestDbFactory.Files())
                     .Handle(new SendAgentMessageCommand(seed.TicketId, "hi", null), CancellationToken.None));
         }
     }
