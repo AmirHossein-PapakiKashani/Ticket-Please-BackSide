@@ -35,8 +35,18 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var connectionString =
+    Environment.GetEnvironmentVariable("TICKET_DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("Default")
+    ?? "Data Source=Ticket.db";
+
 builder.Services.AddDbContext<TicketDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=Ticket.db"));
+{
+    if (IsPostgresConnection(connectionString))
+        options.UseNpgsql(connectionString);
+    else
+        options.UseSqlite(connectionString);
+});
 builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<TicketDbContext>());
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(NotFoundException).Assembly));
@@ -132,5 +142,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
+static bool IsPostgresConnection(string connectionString)
+{
+    var cs = connectionString.Trim();
+    return cs.StartsWith("Host=", StringComparison.OrdinalIgnoreCase)
+           || cs.StartsWith("Server=", StringComparison.OrdinalIgnoreCase)
+           || cs.Contains("postgres", StringComparison.OrdinalIgnoreCase)
+           || cs.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
+           || cs.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase);
+}
 
 public partial class Program;

@@ -17,3 +17,8 @@ Desktop.ini
 ## Local DB
 *.db
 *.db-*
+
+## Secrets / local env
+.env
+.env.local
+*.pfx
