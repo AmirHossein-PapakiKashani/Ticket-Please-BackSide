@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Ticket.Application.Data;
 using Ticket.Domain;
+using TicketEntity = Ticket.Domain.Ticket;
 
 namespace Ticket.Infrastructure.Persistence;
 
@@ -15,6 +16,10 @@ public sealed class TicketDbContext(DbContextOptions<TicketDbContext> options) :
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<TicketEntity> Tickets => Set<TicketEntity>();
+    public DbSet<TicketMessage> TicketMessages => Set<TicketMessage>();
+    public DbSet<Attachment> Attachments => Set<Attachment>();
+    public DbSet<TicketNote> TicketNotes => Set<TicketNote>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,6 +39,8 @@ public sealed class TicketDbContext(DbContextOptions<TicketDbContext> options) :
             e.Property(x => x.PassHash).HasMaxLength(500).IsRequired();
             e.HasIndex(x => x.Username).IsUnique();
             e.HasOne(x => x.Role).WithMany().HasForeignKey(x => x.RoleId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Provider).WithMany().HasForeignKey(x => x.ProviderId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Client).WithMany().HasForeignKey(x => x.ClientId).OnDelete(DeleteBehavior.Restrict);
             e.Ignore(x => x.RoleName);
         });
 
@@ -86,6 +93,37 @@ public sealed class TicketDbContext(DbContextOptions<TicketDbContext> options) :
             e.Property(x => x.Title).HasMaxLength(200).IsRequired();
             e.Property(x => x.Body).HasMaxLength(500);
             e.Property(x => x.Type).HasConversion<int>();
+        });
+
+        modelBuilder.Entity<TicketEntity>(e =>
+        {
+            e.ToTable("Tickets");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Topic).HasMaxLength(300).IsRequired();
+            e.Property(x => x.Status).HasConversion<int>();
+            e.Property(x => x.Priority).HasConversion<int>();
+            e.HasIndex(x => new { x.ProviderId, x.ClientId });
+        });
+
+        modelBuilder.Entity<TicketMessage>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Text).IsRequired();
+            e.HasMany(x => x.Attachments).WithOne().HasForeignKey(a => a.MessageId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Attachment>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.FileUrl).HasMaxLength(500).IsRequired();
+            e.Property(x => x.FileName).HasMaxLength(300).IsRequired();
+            e.Property(x => x.FileType).HasMaxLength(50).IsRequired();
+        });
+
+        modelBuilder.Entity<TicketNote>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Text).IsRequired();
         });
     }
 }
