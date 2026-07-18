@@ -64,7 +64,7 @@ Startup also runs `MigrateAsync` via `DbSeed`.
 ## 4) Optional Docker Postgres
 
 ```bash
-docker run --name ticket-pg -e POSTGRES_USER=ticket -e POSTGRES_PASSWORD=ticket -e POSTGRES_DB=ticket -p 5432:5432 -d postgres:16
+docker run --name ticket-pg -e POSTGRES_USER=ticket -e POSTGRES_PASSWORD=ticket -e POSTGRES_DB=Ticket -p 5432:5432 -d postgres:16
 ```
 
 ## Security
