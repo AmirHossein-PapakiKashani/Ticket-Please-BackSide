@@ -22,22 +22,22 @@ Do **not** commit real passwords.
 
 ```bash
 # PowerShell
-$env:TICKET_DATABASE_URL = "Host=localhost;Port=5432;Database=ticket;Username=ticket;Password=YOUR_PASSWORD"
+$env:TICKET_DATABASE_URL = "Host=localhost;Port=5432;Database=Ticket;Username=ticket;Password=YOUR_PASSWORD"
 
 # bash
-export TICKET_DATABASE_URL='Host=localhost;Port=5432;Database=ticket;Username=ticket;Password=YOUR_PASSWORD'
+export TICKET_DATABASE_URL='Host=localhost;Port=5432;Database=Ticket;Username=ticket;Password=YOUR_PASSWORD'
 ```
 
 URI form also works for MCP:
 
 ```text
-postgresql://ticket:YOUR_PASSWORD@localhost:5432/ticket
+postgresql://ticket:YOUR_PASSWORD@localhost:5432/Ticket
 ```
 
 Default in `appsettings.json` (dev placeholder):
 
 ```text
-Host=localhost;Port=5432;Database=ticket;Username=ticket;Password=ticket
+Host=localhost;Port=5432;Database=Ticket;Username=ticket;Password=ticket
 ```
 
 Project MCP file: `.cursor/mcp.json` maps `DATABASE_URL` from env `TICKET_DATABASE_URL`.

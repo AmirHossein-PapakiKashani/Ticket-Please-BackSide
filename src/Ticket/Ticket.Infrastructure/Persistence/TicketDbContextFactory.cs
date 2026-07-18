@@ -27,7 +27,7 @@ public sealed class TicketDbContextFactory : IDesignTimeDbContextFactory<TicketD
             Environment.GetEnvironmentVariable("TICKET_DATABASE_URL")
             ?? Environment.GetEnvironmentVariable("DATABASE_URL")
             ?? config.GetConnectionString("Default")
-            ?? "Host=localhost;Port=5432;Database=ticket;Username=ticket;Password=ticket";
+            ?? "Host=localhost;Port=5432;Database=Ticket;Username=ticket;Password=ticket";
 
         var options = new DbContextOptionsBuilder<TicketDbContext>()
             .UseNpgsql(connectionString);
