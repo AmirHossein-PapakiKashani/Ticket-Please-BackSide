@@ -38,15 +38,10 @@ builder.Services.AddSwaggerGen();
 var connectionString =
     Environment.GetEnvironmentVariable("TICKET_DATABASE_URL")
     ?? builder.Configuration.GetConnectionString("Default")
-    ?? "Data Source=Ticket.db";
+    ?? throw new InvalidOperationException(
+        "PostgreSQL connection string is required. Set ConnectionStrings:Default or TICKET_DATABASE_URL.");
 
-builder.Services.AddDbContext<TicketDbContext>(options =>
-{
-    if (IsPostgresConnection(connectionString))
-        options.UseNpgsql(connectionString);
-    else
-        options.UseSqlite(connectionString);
-});
+builder.Services.AddDbContext<TicketDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<TicketDbContext>());
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(NotFoundException).Assembly));
@@ -142,15 +137,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
-
-static bool IsPostgresConnection(string connectionString)
-{
-    var cs = connectionString.Trim();
-    return cs.StartsWith("Host=", StringComparison.OrdinalIgnoreCase)
-           || cs.StartsWith("Server=", StringComparison.OrdinalIgnoreCase)
-           || cs.Contains("postgres", StringComparison.OrdinalIgnoreCase)
-           || cs.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
-           || cs.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase);
-}
 
 public partial class Program;

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 namespace Ticket.Infrastructure.Persistence;
 
 /// <summary>
-/// Design-time factory for <c>dotnet ef</c> migrations.
+/// Design-time factory for <c>dotnet ef</c> migrations (PostgreSQL only).
 /// Prefers env <c>TICKET_DATABASE_URL</c> / <c>DATABASE_URL</c>, then appsettings.
 /// </summary>
 public sealed class TicketDbContextFactory : IDesignTimeDbContextFactory<TicketDbContext>
@@ -29,22 +29,9 @@ public sealed class TicketDbContextFactory : IDesignTimeDbContextFactory<TicketD
             ?? config.GetConnectionString("Default")
             ?? "Host=localhost;Port=5432;Database=ticket;Username=ticket;Password=ticket";
 
-        var options = new DbContextOptionsBuilder<TicketDbContext>();
-        if (IsPostgres(connectionString))
-            options.UseNpgsql(connectionString);
-        else
-            options.UseSqlite(connectionString);
+        var options = new DbContextOptionsBuilder<TicketDbContext>()
+            .UseNpgsql(connectionString);
 
         return new TicketDbContext(options.Options);
-    }
-
-    private static bool IsPostgres(string connectionString)
-    {
-        var cs = connectionString.Trim();
-        return cs.StartsWith("Host=", StringComparison.OrdinalIgnoreCase)
-               || cs.StartsWith("Server=", StringComparison.OrdinalIgnoreCase)
-               || cs.Contains("postgres", StringComparison.OrdinalIgnoreCase)
-               || cs.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)
-               || cs.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -17,8 +17,7 @@ public sealed class CmBusinessRulesTests
     [Fact]
     public async Task CreateRequester_And_CrossClient_ReturnsNotFound()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);

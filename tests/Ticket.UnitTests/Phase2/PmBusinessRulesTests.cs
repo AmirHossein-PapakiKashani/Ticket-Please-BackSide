@@ -17,8 +17,7 @@ public sealed class PmBusinessRulesTests
     [Fact]
     public async Task CreateAgent_EnforcesMaxAgentCount()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);
@@ -47,8 +46,7 @@ public sealed class PmBusinessRulesTests
     [Fact]
     public async Task CreateClient_CreatesClientManager_AndEnforcesMaxClientCount()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);
@@ -83,8 +81,7 @@ public sealed class PmBusinessRulesTests
     [Fact]
     public async Task GetAgent_FromOtherProvider_ReturnsNotFound()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);
@@ -110,8 +107,7 @@ public sealed class PmBusinessRulesTests
     [Fact]
     public async Task DeactivateClient_BlocksClientManagerLogin()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);
@@ -149,8 +145,7 @@ public sealed class PmBusinessRulesTests
     [Fact]
     public async Task Dashboard_IsScopedToProvider()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);

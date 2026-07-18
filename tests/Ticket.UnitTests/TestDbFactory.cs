@@ -1,4 +1,3 @@
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Ticket.Application.Abstractions;
@@ -12,12 +11,11 @@ internal static class TestDbFactory
 {
     public static LocalFileStorage Files() => new(Options.Create(new AttachmentOptions()));
 
-    public static async Task<(TicketDbContext Db, SqliteConnection Connection, AspNetPasswordHasher Hasher)> CreateAsync()
+    /// <summary>Isolated in-memory EF database (no SQLite). Not a substitute for Postgres integration tests.</summary>
+    public static async Task<(TicketDbContext Db, AspNetPasswordHasher Hasher)> CreateAsync()
     {
-        var connection = new SqliteConnection("Data Source=:memory:");
-        await connection.OpenAsync();
         var options = new DbContextOptionsBuilder<TicketDbContext>()
-            .UseSqlite(connection)
+            .UseInMemoryDatabase($"ticket-tests-{Guid.NewGuid():N}")
             .Options;
         var db = new TicketDbContext(options);
         await db.Database.EnsureCreatedAsync();
@@ -30,6 +28,6 @@ internal static class TestDbFactory
             new Role { Id = 5, Name = RoleNames.Requester });
         await db.SaveChangesAsync();
 
-        return (db, connection, new AspNetPasswordHasher());
+        return (db, new AspNetPasswordHasher());
     }
 }

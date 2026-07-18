@@ -15,8 +15,7 @@ public sealed class AdminBusinessRulesTests
     [Fact]
     public async Task CreateProvider_CreatesProviderAndProviderManager_InOnePersist()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);
@@ -36,8 +35,7 @@ public sealed class AdminBusinessRulesTests
     [Fact]
     public async Task CreateProvider_DuplicateManagerUsername_ThrowsConflict()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);
@@ -54,8 +52,7 @@ public sealed class AdminBusinessRulesTests
     [Fact]
     public async Task CreateSubscription_DeactivatesPreviousActiveSubscription()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);
@@ -82,8 +79,7 @@ public sealed class AdminBusinessRulesTests
     [Fact]
     public async Task DeactivatedProvider_BlocksProviderManagerLogin()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);

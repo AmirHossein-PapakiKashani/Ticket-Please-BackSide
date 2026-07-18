@@ -56,8 +56,7 @@ public sealed class RequesterBusinessRulesTests
     [Fact]
     public async Task CreateTicket_AssignsAgent_AndNotifies()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var seed = await SeedAsync(db, hasher);
@@ -76,8 +75,7 @@ public sealed class RequesterBusinessRulesTests
     [Fact]
     public async Task CreateTicket_NoAgent_LeavesUnassigned()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var admin = new EfAdminService(db, hasher);
@@ -119,8 +117,7 @@ public sealed class RequesterBusinessRulesTests
     [Fact]
     public async Task ColleagueCannotPostMessage_ButCreatorCan()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var seed = await SeedAsync(db, hasher);
@@ -152,8 +149,7 @@ public sealed class RequesterBusinessRulesTests
     [Fact]
     public async Task Reopen_KeepsSameAgent_AndDoesNotReassign()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var seed = await SeedAsync(db, hasher);
@@ -180,8 +176,7 @@ public sealed class RequesterBusinessRulesTests
     [Fact]
     public async Task Reopen_FromOpen_Conflicts()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var seed = await SeedAsync(db, hasher);

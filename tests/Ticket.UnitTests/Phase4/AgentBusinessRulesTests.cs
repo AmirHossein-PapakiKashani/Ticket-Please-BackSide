@@ -68,8 +68,7 @@ public sealed class AgentBusinessRulesTests
     [Fact]
     public async Task Reassign_TransfersOwnership_PreviousAgentCannotMessage()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var seed = await SeedTwoAgentsAsync(db, hasher);
@@ -91,8 +90,7 @@ public sealed class AgentBusinessRulesTests
     [Fact]
     public async Task Resolve_NotifiesRequester_AndNotesHiddenFromRequesterMessages()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var seed = await SeedTwoAgentsAsync(db, hasher);

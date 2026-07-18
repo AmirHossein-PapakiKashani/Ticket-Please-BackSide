@@ -17,8 +17,7 @@ public sealed class FullCycleBusinessTests
     [Fact]
     public async Task FullCycle_Create_Assign_Reply_Reassign_Resolve_Reopen()
     {
-        var (db, connection, hasher) = await TestDbFactory.CreateAsync();
-        await using (connection)
+        var (db, hasher) = await TestDbFactory.CreateAsync();
         await using (db)
         {
             var files = TestDbFactory.Files();

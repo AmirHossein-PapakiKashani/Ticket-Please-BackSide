@@ -13,11 +13,7 @@ public static class DbSeed
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<TicketDbContext>();
         var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
-        // Migrations are generated for PostgreSQL (Npgsql). SQLite local/dev keeps EnsureCreated.
-        if (db.Database.IsNpgsql())
-            await db.Database.MigrateAsync(cancellationToken);
-        else
-            await db.Database.EnsureCreatedAsync(cancellationToken);
+        await db.Database.MigrateAsync(cancellationToken);
 
         if (!await db.Roles.AnyAsync(cancellationToken))
         {

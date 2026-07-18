@@ -14,10 +14,6 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 
-## Local DB
-*.db
-*.db-*
-
 ## Secrets / local env
 .env
 .env.local
