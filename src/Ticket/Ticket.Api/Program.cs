@@ -35,11 +35,19 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var connectionString =
-    Environment.GetEnvironmentVariable("TICKET_DATABASE_URL")
-    ?? builder.Configuration.GetConnectionString("Default")
-    ?? throw new InvalidOperationException(
+var envConnectionString = Environment.GetEnvironmentVariable("TICKET_DATABASE_URL");
+var rawConnectionString = string.IsNullOrWhiteSpace(envConnectionString)
+    ? builder.Configuration.GetConnectionString("Default")
+    : envConnectionString;
+if (string.IsNullOrWhiteSpace(rawConnectionString))
+{
+    throw new InvalidOperationException(
         "PostgreSQL connection string is required. Set ConnectionStrings:Default or TICKET_DATABASE_URL.");
+}
+
+var connectionString = DbSeed.NormalizeNpgsqlConnectionString(rawConnectionString);
+var databaseName = new Npgsql.NpgsqlConnectionStringBuilder(connectionString).Database;
+Console.WriteLine($"PostgreSQL database: {databaseName}");
 
 builder.Services.AddDbContext<TicketDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<TicketDbContext>());
@@ -80,6 +88,12 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 await DbSeed.EnsureSeededAsync(app.Services);
+
+if (args.Contains("--seed-only", StringComparer.OrdinalIgnoreCase))
+{
+    Console.WriteLine("DbSeed completed (--seed-only). Exiting.");
+    return;
+}
 
 app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
 {
