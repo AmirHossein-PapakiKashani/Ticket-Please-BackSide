@@ -1,3 +1,5 @@
+using Ticket.Domain.Enums;
+
 namespace Ticket.Domain;
 
 /// <summary>Role name constants matching DESIGN seed.</summary>
@@ -75,7 +77,9 @@ public sealed class User
     public int RoleId { get; set; }
     public Role? Role { get; set; }
     public int? ProviderId { get; set; }
+    public Provider? Provider { get; set; }
     public int? ClientId { get; set; }
+    public Client? Client { get; set; }
     public required string FullName { get; set; }
     public required string Username { get; set; }
     public string PhoneNumber { get; set; } = string.Empty;
@@ -116,10 +120,66 @@ public sealed class Notification
 {
     public int Id { get; set; }
     public int UserId { get; set; }
-    public Enums.NotificationType Type { get; set; }
+    public NotificationType Type { get; set; }
     public int? RefId { get; set; }
     public required string Title { get; set; }
     public string? Body { get; set; }
     public bool IsRead { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+/// <summary>Support ticket (DESIGN §5.7).</summary>
+public sealed class Ticket
+{
+    public int Id { get; set; }
+    public int ClientId { get; set; }
+    public int ProviderId { get; set; }
+    public int RequesterId { get; set; }
+    public int? AssignedAgentId { get; set; }
+    public required string Topic { get; set; }
+    public TicketStatus Status { get; set; } = TicketStatus.Open;
+    public TicketPriority Priority { get; set; } = TicketPriority.Medium;
+    public DateTime OpenDate { get; set; } = DateTime.UtcNow;
+    public DateTime? SeenByAgentDate { get; set; }
+    public DateTime? CloseDate { get; set; }
+    public int ReopenCount { get; set; }
+    public bool IsDeleted { get; set; }
+}
+
+/// <summary>Chat message on a ticket (DESIGN §5.8).</summary>
+public sealed class TicketMessage
+{
+    public int Id { get; set; }
+    public int TicketId { get; set; }
+    public int SenderId { get; set; }
+    public required string Text { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? SeenAt { get; set; }
+    public bool IsDeleted { get; set; }
+    public List<Attachment> Attachments { get; set; } = [];
+}
+
+/// <summary>File attached to a ticket message (DESIGN §5.9).</summary>
+public sealed class Attachment
+{
+    public int Id { get; set; }
+    public int MessageId { get; set; }
+    public required string FileUrl { get; set; }
+    public required string FileName { get; set; }
+    public required string FileType { get; set; }
+    public int FileSizeKB { get; set; }
+    public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+    public bool IsDeleted { get; set; }
+}
+
+/// <summary>Internal agent note (DESIGN §5.10) — never exposed to Requester.</summary>
+public sealed class TicketNote
+{
+    public int Id { get; set; }
+    public int TicketId { get; set; }
+    public int AuthorId { get; set; }
+    public required string Text { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsDeleted { get; set; }
 }

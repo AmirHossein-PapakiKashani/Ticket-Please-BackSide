@@ -35,8 +35,13 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<TicketDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=Ticket.db"));
+var connectionString =
+    Environment.GetEnvironmentVariable("TICKET_DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("Default")
+    ?? throw new InvalidOperationException(
+        "PostgreSQL connection string is required. Set ConnectionStrings:Default or TICKET_DATABASE_URL.");
+
+builder.Services.AddDbContext<TicketDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<TicketDbContext>());
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(NotFoundException).Assembly));
@@ -48,6 +53,8 @@ builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
 builder.Services.AddSingleton<IPasswordHasher, AspNetPasswordHasher>();
 builder.Services.AddScoped<IAdminService, EfAdminService>();
+builder.Services.Configure<AttachmentOptions>(builder.Configuration.GetSection(AttachmentOptions.SectionName));
+builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
 
 var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? ["http://localhost:5173"];
 builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.WithOrigins(corsOrigins).AllowAnyHeader().AllowAnyMethod()));

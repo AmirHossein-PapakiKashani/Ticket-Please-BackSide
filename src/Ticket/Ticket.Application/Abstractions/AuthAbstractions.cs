@@ -23,3 +23,11 @@ public interface IPasswordHasher
     string Hash(string password);
     bool Verify(string hashedPassword, string providedPassword);
 }
+
+/// <summary>Stores uploaded ticket attachments (local stub for MVP).</summary>
+public interface IFileStorage
+{
+    Task<StoredFile> SaveAsync(Stream content, string fileName, string contentType, CancellationToken cancellationToken);
+}
+
+public sealed record StoredFile(string FileUrl, string FileName, string FileType, int FileSizeKB);
