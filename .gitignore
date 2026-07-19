@@ -22,3 +22,10 @@ Desktop.ini
 .env
 .env.local
 *.pfx
+
+## Local tooling / temp / dumps (do not commit)
+.codebase-memory/
+.tmp-*/
+.tmp-*.txt
+backups/
+*.dump
