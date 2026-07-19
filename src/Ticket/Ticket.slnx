@@ -3,5 +3,5 @@
   <Project Path="Ticket.Application/Ticket.Application.csproj" />
   <Project Path="Ticket.Domain/Ticket.Domain.csproj" />
   <Project Path="Ticket.Infrastructure/Ticket.Infrastructure.csproj" />
-  <Project Path="../../tests/Ticket.UnitTests/Ticket.UnitTests.csproj" />
+  <Project Path="Ticket.UnitTests/Ticket.UnitTests.csproj" />
 </Solution>
