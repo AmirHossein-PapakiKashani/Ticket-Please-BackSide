@@ -1,0 +1,38 @@
+{
+  "stage": "postman",
+  "status": "allPhasesPassed",
+  "branch": "codex/all-phases",
+  "authorization": {
+    "databasePostman": true,
+    "push": false,
+    "approvedTarget": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "TicketForDol",
+      "provenLocal": true
+    }
+  },
+  "runner": "newman",
+  "apiBaseUrl": "http://localhost:5218/api/v1",
+  "collection": "postman/Ticket-Phase-Integration.postman_collection.json",
+  "phaseResults": {
+    "0": "API Verified 9/9",
+    "1": "API Verified 8/8",
+    "2": "API Verified 7/7",
+    "3": "API Verified 6/6",
+    "4": "API Verified 15/15",
+    "5": "API Verified 5/5",
+    "6": "API Verified 3/3"
+  },
+  "reports": [
+    "Documents/Phase-Reports/Phase-0-postman.md",
+    "Documents/Phase-Reports/Phase-1-postman.md",
+    "Documents/Phase-Reports/Phase-2-postman.md",
+    "Documents/Phase-Reports/Phase-3-postman.md",
+    "Documents/Phase-Reports/Phase-4-postman.md",
+    "Documents/Phase-Reports/Phase-5-postman.md",
+    "Documents/Phase-Reports/Phase-6-postman.md",
+    "Documents/Phase-Reports/postman-summary.md"
+  ],
+  "updatedAt": "2026-07-19T17:00:00+03:30"
+}

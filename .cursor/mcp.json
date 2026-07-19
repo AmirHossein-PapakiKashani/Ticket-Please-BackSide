@@ -9,10 +9,17 @@
       "url": "https://learn.microsoft.com/api/mcp"
     },
     "postgres": {
-      "command": "npx",
-      "args": ["-y", "@yawlabs/postgres-mcp@latest"],
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@yawlabs/postgres-mcp@latest"],
       "env": {
         "DATABASE_URL": "${env:TICKET_DATABASE_URL}"
+      }
+    },
+    "postman": {
+      "command": "npx",
+      "args": ["-y", "@postman/postman-mcp-server@latest"],
+      "env": {
+        "POSTMAN_API_KEY": "${env:POSTMAN_API_KEY}"
       }
     }
   }
