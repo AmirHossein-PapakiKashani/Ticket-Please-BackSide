@@ -64,8 +64,28 @@ builder.Services.AddScoped<IAdminService, EfAdminService>();
 builder.Services.Configure<AttachmentOptions>(builder.Configuration.GetSection(AttachmentOptions.SectionName));
 builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
 
-var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? ["http://localhost:5173"];
-builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.WithOrigins(corsOrigins).AllowAnyHeader().AllowAnyMethod()));
+var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
+    ??
+    [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://45.139.11.108",
+        "http://45.139.11.108:80"
+    ];
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        // FE uses XMLHttpRequest/fetch with credentials mode "include" (withCredentials=true).
+        // AllowCredentials requires explicit WithOrigins — never AllowAnyOrigin()/ "*".
+        policy
+            .WithOrigins(corsOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -94,6 +114,9 @@ if (args.Contains("--seed-only", StringComparer.OrdinalIgnoreCase))
     Console.WriteLine("DbSeed completed (--seed-only). Exiting.");
     return;
 }
+
+// CORS must run before ExceptionHandler so error/preflight responses also get Allow-Origin.
+app.UseCors("Frontend");
 
 app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
 {
@@ -145,8 +168,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors();
-app.UseHttpsRedirection();
+// Skip HTTPS redirect on IIS HTTP-only hosts — redirecting OPTIONS drops CORS headers.
+if (!app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -6,7 +6,8 @@
 |-------|--------|
 | `accessToken` TTL | **15 minutes** (`Jwt:AccessTokenMinutes`) |
 | `refreshToken` TTL | **7 days** (`Jwt:RefreshTokenDays`) |
-| CORS origins | `http://localhost:5173` |
+| CORS origins | `http://localhost:3000`, `http://127.0.0.1:3000`, `http://localhost:5173`, `http://127.0.0.1:5173`, `http://45.139.11.108`, `http://45.139.11.108:80` |
+| CORS credentials | `AllowCredentials()` enabled (`Access-Control-Allow-Credentials: true`) — matches FE `withCredentials` / credentials:`include` |
 | Attachment max size | **5 MB** (`Attachments:MaxFileSizeBytes`) |
 | Allowed MIME types | `image/png`, `image/jpeg`, `application/pdf`, `text/plain` |
 | Swagger (Development) | `/swagger` |
